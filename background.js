@@ -27,8 +27,11 @@ chrome.tabs.onCreated.addListener(function() {
 
 	if(number == 0){
 		number = 1;
+		console.log('bounce')
 		return
 	}
+
+	console.log('no bounce')
 
 
 	// Edge case
@@ -68,6 +71,13 @@ chrome.tabs.onCreated.addListener(function() {
 	}
 
 	number = 0;
+
+	chrome.tabs.query({ active:true, windowType:"normal", currentWindow: true }, function(d){ 
+		console.log('id is '+d[0].id); 
+		chrome.tabs.remove(d[0].id, function(callback){})
+		chrome.tabs.create({ url: null });
+	})
+
 		
 });
 

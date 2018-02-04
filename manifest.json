@@ -9,10 +9,10 @@
   },
   "permissions": [
           "management",
-          "newTabPageOverride"
+          "newTabPageOverride",
+          "tabs"
         ],
   "background": {
-  	"scripts": ["jquery-3.3.1.min.js", "background.js"],
-    "persistent": false
+  	"scripts": ["jquery-3.3.1.min.js", "background.js"]
   }
 }
