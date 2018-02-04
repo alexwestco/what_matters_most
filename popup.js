@@ -45,13 +45,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 
 	document.getElementById('btn').onclick = function(){
-		chrome.extension.getBackgroundPage().console.log(checkboxes)
+		//chrome.extension.getBackgroundPage().console.log(checkboxes)
 		
 		var ids=[];
 		var checked=[];
 
 		for(i=0; i<checkboxes.length; i++){
-			chrome.extension.getBackgroundPage().console.log('checked: '+checkboxes[i].checked);
+			//chrome.extension.getBackgroundPage().console.log('checked: '+checkboxes[i].checked);
+			
 			ids.push(checkboxes[i].id)
 			checked.push(checkboxes[i].checked)
 		}
