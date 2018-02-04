@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			var label = document.createElement('label')
 			label.htmlFor = "id";
-			label.innerHTML = array[i][0].bold()
+			label.innerHTML = array[i][0].bold();
 			label.appendChild(document.createTextNode(' : '+array[i][1]));
 
 			checkboxes.push(checkbox)

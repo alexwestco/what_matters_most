@@ -68,7 +68,8 @@ chrome.tabs.onCreated.addListener(function() {
 	number = 0;
 
 	chrome.tabs.query({ active:true, windowType:"normal", currentWindow: true }, function(d){ 
-		console.log('id is '+d[0].id); 
+		console.log('id is '+d[0].id);
+		
 		if(d[0].url == 'chrome://newtab/'){
 			chrome.tabs.remove(d[0].id, function(callback){})
 			chrome.tabs.create({ url: null });
