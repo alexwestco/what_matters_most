@@ -69,13 +69,17 @@ chrome.tabs.onCreated.addListener(function() {
 
 	chrome.tabs.query({ active:true, windowType:"normal", currentWindow: true }, function(d){ 
 		console.log('id is '+d[0].id); 
-		chrome.tabs.remove(d[0].id, function(callback){})
-		chrome.tabs.create({ url: null });
+		if(d[0].url == 'chrome://newtab/'){
+			chrome.tabs.remove(d[0].id, function(callback){})
+			chrome.tabs.create({ url: null });
+		}
+		
 	})
 
 		
 });
 
+var str = 'Extensions will loop in this order.\n\n'
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -90,6 +94,7 @@ chrome.runtime.onMessage.addListener(
 
     for(i=0; i<request.ids.length; i++){
     	if(request.checked[i]){
+    		str = '  ' + str + '--> ' + request.names[i] + '\n'
     		extensions.push(request.ids[i])
     	}
     	
@@ -111,6 +116,8 @@ chrome.runtime.onMessage.addListener(
     //console.log(extensions)
 
     chrome.storage.sync.set({ extensions: extensions });
+
+    alert(str)
 
     sendResponse({farewell: "goodbye"})
 

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 
 		checkboxes = []
+		names = []
 
 		for(i=0; i<array.length; i++){
 			var checkbox = document.createElement('input');
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			label.appendChild(document.createTextNode(' : '+array[i][1]));
 
 			checkboxes.push(checkbox)
+			names.push(array[i][0])
 
 			options.appendChild(checkbox);
 			options.appendChild(label);
@@ -57,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			checked.push(checkboxes[i].checked)
 		}
 
-		chrome.runtime.sendMessage({ids: ids, checked: checked}, function(response) {
+		chrome.runtime.sendMessage({ids: ids, checked: checked, names: names}, function(response) {
 		  //alert(response);
 		});
 

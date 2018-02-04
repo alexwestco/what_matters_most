@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Hello World",
-  "description": "Holy moly this is easy",
+  "name": "MultiNewTab",
+  "description": "Use several New Tab extensions at once.",
   "version": "1.0",
   "browser_action": {
     "default_icon": "icon.png",
