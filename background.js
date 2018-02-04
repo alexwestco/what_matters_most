@@ -1,29 +1,24 @@
 var extensions = [];
+
+chrome.storage.sync.get('extensions', function(data) {
+	    //console.log('Now ------------------> extensions are ')
+		extensions = data.extensions
+	});
+
+
 var indexOfEnabledExtension = 0;
 
 var number = 0;
 
-function test_prime(n) {
 
-	if (n===1) {
-    	return false;
-	}
-  	else if(n === 2) {
-    	return true;
-  	}else{
-    	for(var x = 2; x < n; x++) {
-      		if(n % x === 0){
-        		return false;
-      		}
-    	}
-    	return true;  
-  	}
-
-}
 
 chrome.tabs.onCreated.addListener(function() {
-	console.log("From here babaaay -->")
-	console.log(extensions)
+	//console.log("From here babaaay -->")
+	//console.log(extensions)
+
+	
+
+	
 
 	if(number == 0){
 		number = 1;
@@ -37,7 +32,7 @@ chrome.tabs.onCreated.addListener(function() {
 	// Edge case
 	if(indexOfEnabledExtension == extensions.length-1){
 
-		console.log("Edge case")
+		//console.log("Edge case")
 
 		chrome.management.setEnabled(extensions[indexOfEnabledExtension], false, function() {
 			console.log('disabled '+extensions[indexOfEnabledExtension])
@@ -49,12 +44,12 @@ chrome.tabs.onCreated.addListener(function() {
 		});
 
 		
-		console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
+		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
 
 	// Normal case
 	}else{
 
-		console.log("Normal case")
+		//console.log("Normal case")
 
 		chrome.management.setEnabled(extensions[indexOfEnabledExtension], false, function() {
 			console.log('disabled '+extensions[indexOfEnabledExtension])
@@ -66,7 +61,7 @@ chrome.tabs.onCreated.addListener(function() {
 		});
 
 		
-		console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
+		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
 
 	}
 
@@ -111,8 +106,11 @@ chrome.runtime.onMessage.addListener(
     	}
     	
     }
-    console.log('extensions-->')
-    console.log(extensions)
+
+    //console.log('extensions-->')
+    //console.log(extensions)
+
+    chrome.storage.sync.set({ extensions: extensions });
 
     sendResponse({farewell: "goodbye"})
 
