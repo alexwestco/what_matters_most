@@ -45,8 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				label.innerHTML = " <span style='font-size:14px; color:#D48872'>" + array[i][0].bold()+ "</span>";
 
 				label.appendChild(document.createTextNode(' : '+array[i][1]));
-
-				if(data==undefined){
+				//chrome.extension.getBackgroundPage().console.log('data.extensions')
+				//chrome.extension.getBackgroundPage().console.log(data.extensions)
+				if(data.extensions!=undefined){
 		    		for(n=0; n<extensions.length; n++){
 						//chrome.extension.getBackgroundPage().console.log(extensions[n] + " / " + checkbox.id)
 						if(extensions[n]==checkbox.id){
