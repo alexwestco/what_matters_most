@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		chrome.storage.sync.get('extensions', function(data) {
 		    //chrome.extension.getBackgroundPage().console.log('Now ------------------> extensions are ')
+			
 			extensions = data.extensions
 			//chrome.extension.getBackgroundPage().console.log(extensions)
 
@@ -45,13 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				label.appendChild(document.createTextNode(' : '+array[i][1]));
 
-				
-				for(n=0; n<extensions.length; n++){
-					//chrome.extension.getBackgroundPage().console.log(extensions[n] + " / " + checkbox.id)
-					if(extensions[n]==checkbox.id){
-						checkbox.checked = true
+				if(data==undefined){
+		    		for(n=0; n<extensions.length; n++){
+						//chrome.extension.getBackgroundPage().console.log(extensions[n] + " / " + checkbox.id)
+						if(extensions[n]==checkbox.id){
+							checkbox.checked = true
+						}
 					}
-				}
+		    	}
+				
 
 				checkboxes.push(checkbox)
 				names.push(array[i][0])
