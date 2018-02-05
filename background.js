@@ -1,4 +1,5 @@
 var extensions = [];
+var names = [];
 
 chrome.storage.sync.get('extensions', function(data) {
 	    //console.log('Now ------------------> extensions are ')
@@ -13,17 +14,16 @@ var number = 0;
 
 
 chrome.tabs.onCreated.addListener(function() {
+
+	//console.log('extensions: ')
+    //console.log(extensions)
+    //console.log('names: ')
+    //console.log(names)
+
 	//console.log("From here babaaay -->")
 	//console.log(extensions)
-	
 
-	if(number == 0){
-		number = 1;
-		console.log('bounce')
-		return
-	}
-
-	console.log('no bounce')
+	//console.log('no bounce')
 
 
 	// Edge case
@@ -31,14 +31,17 @@ chrome.tabs.onCreated.addListener(function() {
 
 		//console.log("Edge case")
 
-		chrome.management.setEnabled(extensions[indexOfEnabledExtension], false, function() {
-			console.log('disabled '+extensions[indexOfEnabledExtension])
-		});
-			
+		for(i=1; i<extensions.length-1; i++){
+			chrome.management.setEnabled(extensions[i], false, function() {
+				//console.log('disabled ' + names[i])
+				indexOfEnabledExtension = 0;
+			});
+		}
+
 		chrome.management.setEnabled(extensions[0], true, function() {
-			console.log('enabled '+ extensions[0])
-			indexOfEnabledExtension = 0;
-		});
+				//console.log('enabled ' + names[0])
+				indexOfEnabledExtension = 0;
+			});
 
 		
 		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
@@ -47,44 +50,47 @@ chrome.tabs.onCreated.addListener(function() {
 	}else{
 
 		//console.log("Normal case")
+		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
+		
+		if(indexOfEnabledExtension==0){
+			chrome.management.setEnabled(extensions[extensions.length-1], false, function() {
+				//console.log('disabled ' + names[extensions.length-1])
+			});
+		}
 
-		chrome.management.setEnabled(extensions[indexOfEnabledExtension], false, function() {
-			console.log('disabled '+extensions[indexOfEnabledExtension])
-		});
+		if(indexOfEnabledExtension>0){
+			chrome.management.setEnabled(extensions[indexOfEnabledExtension-1], false, function() {
+				//console.log('disabled ' + names[indexOfEnabledExtension-1])
+			});
+		}
 
 		chrome.management.setEnabled(extensions[indexOfEnabledExtension+1], true, function() {
-			console.log('enabled '+extensions[indexOfEnabledExtension+1])
+			//console.log('enabled '+names[indexOfEnabledExtension+1])
 			indexOfEnabledExtension ++;
 		});
-
 		
 		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
 
 	}
 
+
+
 	number = 0;
-
-	chrome.tabs.query({ active:true, windowType:"normal", currentWindow: true }, function(d){ 
-		console.log('id is '+d[0].id);
-
-		if(d[0].url == 'chrome://newtab/'){
-			chrome.tabs.remove(d[0].id, function(callback){})
-			chrome.tabs.create({ url: null });
-		}
-		
-	})
-
 		
 });
 
-var str = 'Extensions will loop in this order.\n\n'
+
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
+
+  	var str = 'Extensions will loop in this order.\n\n'
   	extensions = [];
+  	names = [];
+
   	indexOfEnabledExtension = 0;
 
-    console.log(request.ids)
+    //console.log(request.ids)
 
     for(i=0; i<request.ids.length; i++){
     	chrome.management.setEnabled(request.ids[i], false, function() {});
@@ -94,6 +100,7 @@ chrome.runtime.onMessage.addListener(
     	if(request.checked[i]){
     		str = '  ' + str + '--> ' + request.names[i] + '\n'
     		extensions.push(request.ids[i])
+    		names.push(request.names[i])
     	}
     	
     }
@@ -102,13 +109,18 @@ chrome.runtime.onMessage.addListener(
     	if(request.checked[i]){
 
     		chrome.management.setEnabled(request.ids[i], true, function() {
-	    		
+
 	   		});
 
 	   		break;
     	}
     	
     }
+
+    //console.log('extensions: ')
+    //console.log(extensions)
+    //console.log('names: ')
+    //console.log(names)
 
     //console.log('extensions-->')
     //console.log(extensions)
