@@ -36,33 +36,27 @@ chrome.tabs.onCreated.addListener(function () {
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  extensions = [];
+  extensions = request.extensionsToSwitch.map(i => {i.isActive = false; return i});
+
+  console.log(extensions)
 
   indexOfEnabledExtension = 0;
 
   console.log('Selected Extensions:', request.ids);
-
+  
   // disable all extensions
-  request.ids.forEach((id) =>
+  chrome.management.setEnabled(extensions[0].id, true, () => {});
+  extensions[0].isActive = true;
+
+  extensions.forEach(({id}) =>
     chrome.management.setEnabled(id, false, () => {})
   );
 
-  for (i = 0; i < request.ids.length; i++) {
-    if (request.checked[i]) {
-      extensions.push({
-        id: request.ids[i],
-        name: request.names[i],
-        isActive: false,
-      });
-    }
-  }
-
-  chrome.management.setEnabled(request.ids[0], true, () => {});
-  extensions[0].isActive = true;
-
-  alert(`Extensions will loop in this order:
+  alert(`
+    Extensions will loop in this order:
+    \n
     ${extensions.map(e => e.name).join('\n')}
-  `);
+  `.replace(/  +/g, ''));
 
   chrome.storage.sync.set({ extensions: extensions });
 
