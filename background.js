@@ -1,134 +1,71 @@
 var extensions = [];
 var names = [];
 
-chrome.storage.sync.get('extensions', function(data) {
-	    //console.log('Now ------------------> extensions are ')
-		extensions = data.extensions
-	});
-
+chrome.storage.sync.get("extensions", function (data) {
+  console.log("Now ------------------> extensions are ");
+  extensions = data.extensions;
+});
 
 var indexOfEnabledExtension = 0;
 
-var number = 0;
+chrome.tabs.onCreated.addListener(function () {
+  indexOfEnabledExtension = ++indexOfEnabledExtension % extensions.length;
 
+  let idToDisable;
+  let idToEnable;
 
+  extensions = extensions.map(({ id, name, isActive }, idx) => {
+    if (isActive) {
+      idToDisable = id;
+      return { id, name, isActive: false };
+    }
+    if (idx === indexOfEnabledExtension) {
+      idToEnable = id;
+      return { id, name, isActive: true };
+    }
 
-chrome.tabs.onCreated.addListener(function() {
+    return { id, name, isActive };
+  });
 
-	//console.log('extensions: ')
-    //console.log(extensions)
-    //console.log('names: ')
-    //console.log(names)
+  chrome.management.setEnabled(idToEnable, true, function () {
+    console.log(`%c enabled ${idToEnable}`, "color: green");
+  });
 
-	//console.log("From here babaaay -->")
-	//console.log(extensions)
-
-	//console.log('no bounce')
-
-
-	// Edge case
-	if(indexOfEnabledExtension == extensions.length-1){
-
-		//console.log("Edge case")
-
-		for(i=1; i<extensions.length-1; i++){
-			chrome.management.setEnabled(extensions[i], false, function() {
-				//console.log('disabled ' + names[i])
-				indexOfEnabledExtension = 0;
-			});
-		}
-
-		chrome.management.setEnabled(extensions[0], true, function() {
-				//console.log('enabled ' + names[0])
-				indexOfEnabledExtension = 0;
-			});
-
-		
-		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
-
-	// Normal case
-	}else{
-
-		//console.log("Normal case")
-		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
-		
-		if(indexOfEnabledExtension==0){
-			chrome.management.setEnabled(extensions[extensions.length-1], false, function() {
-				//console.log('disabled ' + names[extensions.length-1])
-			});
-		}
-
-		if(indexOfEnabledExtension>0){
-			chrome.management.setEnabled(extensions[indexOfEnabledExtension-1], false, function() {
-				//console.log('disabled ' + names[indexOfEnabledExtension-1])
-			});
-		}
-
-		chrome.management.setEnabled(extensions[indexOfEnabledExtension+1], true, function() {
-			//console.log('enabled '+names[indexOfEnabledExtension+1])
-			indexOfEnabledExtension ++;
-		});
-		
-		//console.log('indexOfEnabledExtension is '+indexOfEnabledExtension)
-
-	}
-
-
-
-	number = 0;
-		
+  chrome.management.setEnabled(idToDisable, false, function () {
+    console.log(`%c disabled ${idToDisable}`, "color: red");
+  });
 });
 
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  extensions = [];
 
+  indexOfEnabledExtension = 0;
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  console.log('Selected Extensions:', request.ids);
 
-  	var str = 'Extensions will loop in this order.\n\n'
-  	extensions = [];
-  	names = [];
+  // disable all extensions
+  request.ids.forEach((id) =>
+    chrome.management.setEnabled(id, false, () => {})
+  );
 
-  	indexOfEnabledExtension = 0;
-
-    //console.log(request.ids)
-
-    for(i=0; i<request.ids.length; i++){
-    	chrome.management.setEnabled(request.ids[i], false, function() {});
+  for (i = 0; i < request.ids.length; i++) {
+    if (request.checked[i]) {
+      extensions.push({
+        id: request.ids[i],
+        name: request.names[i],
+        isActive: false,
+      });
     }
+  }
 
-    for(i=0; i<request.ids.length; i++){
-    	if(request.checked[i]){
-    		str = '  ' + str + '--> ' + request.names[i] + '\n'
-    		extensions.push(request.ids[i])
-    		names.push(request.names[i])
-    	}
-    	
-    }
+  chrome.management.setEnabled(request.ids[0], true, () => {});
+  extensions[0].isActive = true;
 
-    for(i=0; i<request.ids.length; i++){
-    	if(request.checked[i]){
+  alert(`Extensions will loop in this order:
+    ${extensions.map(e => e.name).join('\n')}
+  `);
 
-    		chrome.management.setEnabled(request.ids[i], true, function() {
+  chrome.storage.sync.set({ extensions: extensions });
 
-	   		});
-
-	   		break;
-    	}
-    	
-    }
-
-    //console.log('extensions: ')
-    //console.log(extensions)
-    //console.log('names: ')
-    //console.log(names)
-
-    //console.log('extensions-->')
-    //console.log(extensions)
-
-    chrome.storage.sync.set({ extensions: extensions });
-
-    alert(str)
-
-    sendResponse({farewell: "goodbye"})
-
-  });
+  sendResponse({ farewell: "goodbye" });
+});
