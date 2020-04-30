@@ -1,5 +1,4 @@
 var extensions = [];
-var names = [];
 
 chrome.storage.sync.get("extensions", function (data) {
   console.log("Now ------------------> extensions are ");

@@ -8,12 +8,9 @@
     "default_title": "Have multiple new tabs!",
     "default_popup": "popup.html"
   },
-  "icons": { "64": "icon-1.png" },
-  "permissions": [
-          "management",
-          "storage"
-        ],
+  "icons": { "64": "icon.png" },
+  "permissions": ["management", "storage"],
   "background": {
-  	"scripts": ["background.js"]
+    "scripts": ["background.js"]
   }
 }
