@@ -1,103 +1,83 @@
-function compare(a,b) {
-  if (a.name < b.name)
-     return -1;
-  if (a.name > b.name)
-    return 1;
-  return 0;
-}
+document.addEventListener("DOMContentLoaded", listExtensions);
 
-document.addEventListener('DOMContentLoaded', function() {
-	var array=[];
-	var options = document.getElementById('options');
-	chrome.management.getAll(function(response) {
-		response.sort(compare)
-		for(i=0; i<response.length; i++){
-			for(j=0; j<response[i].permissions.length; j++){
-				if(response[i].permissions[j]=='newTabPageOverride'){
-					//chrome.extension.getBackgroundPage().console.log(response[i].name);
-					array.push([response[i].name, response[i].description, response[i].id])
-				}
-			}
-			
-		}
+function listExtensions() {
+  let newTabExtensions = [];
+  let options = document.querySelector("#options");
 
-		checkboxes = []
-		names = []
-		extensions = []
+  chrome.management.getAll(function (response) {
+    response.sort(compare);
 
-		chrome.storage.sync.get('extensions', function(data) {
-		    //chrome.extension.getBackgroundPage().console.log('Now ------------------> extensions are ')
-			
-			extensions = data.extensions
-			//chrome.extension.getBackgroundPage().console.log(extensions)
+    response.forEach((installedExtension) => {
+      installedExtension.permissions.forEach((permission) => {
+        if (permission === "newTabPageOverride") {
+          //chrome.extension.getBackgroundPage().console.log(installedExtension.name);
+          newTabExtensions.push({
+            name: installedExtension.name,
+            description: installedExtension.description,
+            id: installedExtension.id,
+          });
+        }
+      });
+    });
 
+    checkboxes = [];
+    extensions = [];
 
-			for(i=0; i<array.length; i++){
-				var checkbox = document.createElement('input');
+    chrome.storage.sync.get("extensions", function (data) {
+      //chrome.extension.getBackgroundPage().console.log('Now ------------------> extensions are ')
 
-				checkbox.type = "checkbox";
-				checkbox.name = "name";
-				checkbox.value = "value";
-				checkbox.id = array[i][2];
+      storageExtensions = data.extensions;
+      //chrome.extension.getBackgroundPage().console.log(extensions)
 
-				var label = document.createElement('label')
-				label.htmlFor = "id";
-				label.innerHTML = " <span style='font-size:14px; color:#D48872'>" + array[i][0].bold()+ "</span>";
-
-				label.appendChild(document.createTextNode(' : '+array[i][1]));
-				//chrome.extension.getBackgroundPage().console.log('data.extensions')
-				//chrome.extension.getBackgroundPage().console.log(data.extensions)
-				if(data.extensions!=undefined){
-		    		for(n=0; n<extensions.length; n++){
-						//chrome.extension.getBackgroundPage().console.log(extensions[n] + " / " + checkbox.id)
-						if(extensions[n]==checkbox.id){
-							checkbox.checked = true
-						}
-					}
-		    	}
+      newTabExtensions.forEach((extension) => {
+				let option = document.createElement("div");
+        option.classList.add("option");
 				
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = "value";
+        checkbox.classList.add("extension");
+        checkbox.dataset.name = extension.name;
+        checkbox.id = extension.id;
+        checkbox.checked = storageExtensions.filter(
+          (i) => i.id === extension.id
+        ).length;
 
-				checkboxes.push(checkbox)
-				names.push(array[i][0])
+        let label = document.createElement("label");
+        label.htmlFor = extension.id;
+        label.innerHTML = `${extension.name.bold()}: ${extension.description}`;
 
-				options.appendChild(checkbox);
-				options.appendChild(label);
+        checkboxes.push(checkbox);
 
-				var br = document.createElement("br");
-		        options.appendChild(br);
+        option.appendChild(checkbox);
+				option.appendChild(label);
+				
+				options.appendChild(option)
+      });
+    });
+  });
 
-		        var br = document.createElement("br");
-		        options.appendChild(br);
+  document.querySelector("#btn").onclick = function () {
+    let extensionsToSwitch = [];
 
-		        var br = document.createElement("br");
-		        options.appendChild(br);
+    document.querySelectorAll("input.extension").forEach((option) => {
+      if (option.checked)
+        extensionsToSwitch.push({
+          id: option.id,
+          name: option.dataset.name,
+        });
+    });
 
-			}
-		});
+    console.log(extensionsToSwitch);
 
+    chrome.runtime.sendMessage({ extensionsToSwitch }, function (response) {});
 
+    //chrome.extension.getBackgroundPage().console.log(checkboxes)
+  };
+};
 
-	});
-
-	document.getElementById('btn').onclick = function(){
-		//chrome.extension.getBackgroundPage().console.log(checkboxes)
-		
-		var ids=[];
-		var checked=[];
-
-		for(i=0; i<checkboxes.length; i++){
-			//chrome.extension.getBackgroundPage().console.log('checked: '+checkboxes[i].checked);
-			
-			ids.push(checkboxes[i].id)
-			checked.push(checkboxes[i].checked)
-		}
-
-
-		chrome.runtime.sendMessage({ids: ids, checked: checked, names: names}, function(response) {
-		  //alert(response);
-		});
-
-	}
-	
-
-});
+const compare = (a, b) => {
+  if (a.name < b.name) return -1;
+  if (a.name > b.name) return 1;
+  return 0;
+};
